@@ -14,6 +14,9 @@
 #
 
 import argparse
+import os
+import re
+import string
 
 parser = argparse.ArgumentParser(description = \
     "Convert a single, DayOne export file in markdown format to separate " +\
@@ -30,3 +33,19 @@ if not (args.e ^ args.d ^ args.w):
 	print "A single separation option is required (-e, -d, -w)."
 	exit(1)
 
+if not os.path.isfile(args.inputFile):
+	print "No such file: " + args.inputFile
+	exit(2)
+
+# Example date tags
+#	Date:	December 6, 2010 at 9:00 AM
+#	Date:	February 4, 2011 at 12:00 PM
+#	Date:	February 28, 2011 at 10:48 AM
+#	Date:	October 13, 2011 at 2:20 PM
+dtMatch = r"\tDate:\t(January|February|March|April|May|June|July|August|September|October|November|December)\s[1|2|3]?\d,\s\d{4}\sat\s1?\d:\d\d\s[A|P]M"
+
+with open(args.inputFile) as inputFile:
+	for line in inputFile:
+		isDateTag = re.match(dtMatch, line)
+		if isDateTag:
+			print string.strip(line)
